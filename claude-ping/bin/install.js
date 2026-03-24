@@ -10,12 +10,12 @@ const DEST = path.join(CLAUDE_DIR, SCRIPT_NAME);
 const SETTINGS = path.join(CLAUDE_DIR, "settings.json");
 
 const HOOK_STOP = {
-  type: "command",
-  command: `${DEST} finished`,
+  matcher: "",
+  hooks: [{ type: "command", command: `${DEST} finished` }],
 };
 const HOOK_NOTIFICATION = {
-  type: "command",
-  command: `${DEST} input`,
+  matcher: "",
+  hooks: [{ type: "command", command: `${DEST} input` }],
 };
 
 const args = process.argv.slice(2);
@@ -38,20 +38,20 @@ function writeSettings(obj) {
   fs.writeFileSync(SETTINGS, JSON.stringify(obj, null, 2) + "\n");
 }
 
-function addHook(settings, event, hook) {
+function addHook(settings, event, hookEntry) {
   if (!settings.hooks) settings.hooks = {};
   if (!settings.hooks[event]) settings.hooks[event] = [];
-  // avoid duplicates
+  const cmd = hookEntry.hooks[0].command;
   const exists = settings.hooks[event].some(
-    (h) => h.type === hook.type && h.command === hook.command
+    (h) => Array.isArray(h.hooks) && h.hooks.some((hh) => hh.command === cmd)
   );
-  if (!exists) settings.hooks[event].push(hook);
+  if (!exists) settings.hooks[event].push(hookEntry);
 }
 
 function removeHook(settings, event, command) {
   if (!settings.hooks?.[event]) return;
   settings.hooks[event] = settings.hooks[event].filter(
-    (h) => h.command !== command
+    (h) => !(Array.isArray(h.hooks) && h.hooks.some((hh) => hh.command === command))
   );
   if (settings.hooks[event].length === 0) delete settings.hooks[event];
   if (Object.keys(settings.hooks).length === 0) delete settings.hooks;
