@@ -37,6 +37,11 @@ color_for_pct() {
 #            bears, triangles, snowflakes, music, sakura, arrows
 THEME="${CLAUDE_HEARTS_THEME:-hearts}"
 
+# ── Direction ─────────────────────────────────────────────
+# fill    — bar fills up as usage increases, % shows used (default)
+# deplete — bar depletes as usage increases, % shows remaining
+DIRECTION="${CLAUDE_HEARTS_DIRECTION:-fill}"
+
 theme_chars() {
     case "$THEME" in
         hearts)     echo "♥ ♡" ;;
@@ -66,14 +71,25 @@ usage_bar() {
     local on="${chars%% *}"
     local off="${chars##* }"
     local h=""
-    # Bar depletes: remaining = colored, used = muted
-    local remaining=$(( total - filled ))
-    if [ "$THEME" = "pawprints" ]; then
-        for ((i=0; i<remaining; i++)); do h+="${on} "; done
-        for ((i=0; i<filled;    i++)); do h+="${muted}${off}${reset} "; done
+    if [ "$DIRECTION" = "deplete" ]; then
+        # Bar depletes: remaining = colored, used = muted
+        local remaining=$(( total - filled ))
+        if [ "$THEME" = "pawprints" ]; then
+            for ((i=0; i<remaining; i++)); do h+="${on} "; done
+            for ((i=0; i<filled;    i++)); do h+="${muted}${off}${reset} "; done
+        else
+            for ((i=0; i<remaining; i++)); do h+="${color}${on}${reset} "; done
+            for ((i=0; i<filled;    i++)); do h+="${muted}${off}${reset} "; done
+        fi
     else
-        for ((i=0; i<remaining; i++)); do h+="${color}${on}${reset} "; done
-        for ((i=0; i<filled;    i++)); do h+="${muted}${off}${reset} "; done
+        # Bar fills: used = colored, remaining = muted
+        if [ "$THEME" = "pawprints" ]; then
+            for ((i=0; i<filled; i++)); do h+="${on} "; done
+            for ((i=0; i<empty;  i++)); do h+="${muted}${off}${reset} "; done
+        else
+            for ((i=0; i<filled; i++)); do h+="${color}${on}${reset} "; done
+            for ((i=0; i<empty;  i++)); do h+="${muted}${off}${reset} "; done
+        fi
     fi
     printf "%b" "$h"
 }
@@ -259,6 +275,7 @@ try { const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')); proce
 fi
 
 # ── Line 1: model · dir (branch) · context · cost ────────
+[ "$DIRECTION" = "deplete" ] && ctx_pct_display=$(( 100 - ctx_pct )) || ctx_pct_display=$ctx_pct
 ctx_color=$(color_for_pct "$ctx_pct")
 line1="${lavender}✦ ${model}${reset}"
 line1+="${sep}${cyan}${dirname}${reset}${git_info}"
@@ -297,12 +314,20 @@ try {
         fh_remain=$(time_remaining "$fh_reset")
         fh_bar=$(usage_bar "$fh_pct")
         fh_color=$(color_for_pct "$fh_pct")
-        fh_pct_pad=$(printf "%3d" "$fh_pct")
+        if [ "$DIRECTION" = "deplete" ]; then
+            fh_pct_pad=$(printf "%3d" $(( 100 - fh_pct )))
+        else
+            fh_pct_pad=$(printf "%3d" "$fh_pct")
+        fi
 
         wd_remain=$(time_remaining "$wd_reset")
         wd_bar=$(usage_bar "$wd_pct")
         wd_color=$(color_for_pct "$wd_pct")
-        wd_pct_pad=$(printf "%3d" "$wd_pct")
+        if [ "$DIRECTION" = "deplete" ]; then
+            wd_pct_pad=$(printf "%3d" $(( 100 - wd_pct )))
+        else
+            wd_pct_pad=$(printf "%3d" "$wd_pct")
+        fi
 
         fh_bear=""; wd_bear=""
         [ "$THEME" = "bears" ] && fh_bear=" $(bear_face "$fh_pct")" && wd_bear=" $(bear_face "$wd_pct")"

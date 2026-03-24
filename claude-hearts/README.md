@@ -24,6 +24,12 @@ cd claude_code_plugin/claude-hearts
 node bin/install.js
 ```
 
+安裝時可指定選項：
+
+```bash
+node bin/install.js --theme stars --direction deplete
+```
+
 自動備份原有 statusline 並設定 Claude Code。
 
 **前置需求**
@@ -66,6 +72,32 @@ node bin/install.js
 }
 ```
 
+### 方向
+
+透過環境變數 `CLAUDE_HEARTS_DIRECTION` 控制進度條方向，預設為 `fill`。
+
+| 模式 | 說明 |
+|------|------|
+| `fill` | 進度條隨用量增加而**填滿**，百分比顯示**已用量**（預設） |
+| `deplete` | 進度條隨用量增加而**消耗**，百分比顯示**剩餘量** |
+
+安裝時指定方向：
+
+```bash
+node bin/install.js --direction deplete
+```
+
+或在 `~/.claude/settings.json` 手動設定：
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "CLAUDE_HEARTS_DIRECTION=deplete ~/.claude/statusline.sh"
+  }
+}
+```
+
 **bears 主題**
 
 熊臉表情會隨用量變化出現在百分比後方：
@@ -76,6 +108,25 @@ node bin/install.js
 5h ᴥ ᴥ ᴥ ᴥ ᴥ ᴥ ᴥ ᴥ ᴥ ᴥ   78% ʕ；ᴥ；ʔ resets in 1h05m  ← 黃，快撐不住
 5h ᴥ ᴥ ᴥ ᴥ ᴥ ᴥ ᴥ ᴥ ᴥ ᴥ   95% ʕ×ᴥ×ʔ resets in 10m    ← 紅，掛了
 ```
+
+### 變更設定
+
+安裝後想更換主題或方向，重新執行 `install.js` 並帶上新選項即可，會自動覆蓋設定：
+
+```bash
+# 換主題
+node bin/install.js --theme sakura
+
+# 換方向
+node bin/install.js --direction deplete
+
+# 同時更換兩者
+node bin/install.js --theme diamonds --direction deplete
+```
+
+重新啟動 Claude Code 後生效。
+
+也可以直接編輯 `~/.claude/settings.json` 的 `command` 欄位，修改完同樣需要重新啟動。
 
 ### 手動安裝
 
@@ -101,7 +152,11 @@ chmod +x ~/.claude/statusline.sh
 node bin/install.js --uninstall
 ```
 
-若安裝前有原本的 statusline，會自動還原。
+執行後會：
+1. 從 `~/.claude/settings.json` 移除 `statusLine` 設定
+2. 若安裝前已有原本的 statusline，自動從備份還原；否則直接刪除腳本檔
+
+重新啟動 Claude Code 後完全移除。
 
 ### 隱私說明
 
@@ -136,6 +191,12 @@ Colours indicate usage level:
 git clone https://github.com/tseng7510/claude_code_plugin.git
 cd claude_code_plugin/claude-hearts
 node bin/install.js
+```
+
+Install with options:
+
+```bash
+node bin/install.js --theme stars --direction deplete
 ```
 
 Backs up any existing statusline and configures Claude Code automatically.
@@ -180,6 +241,32 @@ Set your theme in `~/.claude/settings.json`:
 }
 ```
 
+### Direction
+
+Control the bar direction with the `CLAUDE_HEARTS_DIRECTION` environment variable. Default: `fill`.
+
+| Mode | Description |
+|------|-------------|
+| `fill` | Bar **fills up** as usage increases; percentage shows **used** (default) |
+| `deplete` | Bar **depletes** as usage increases; percentage shows **remaining** |
+
+Install with a direction:
+
+```bash
+node bin/install.js --direction deplete
+```
+
+Or set manually in `~/.claude/settings.json`:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "CLAUDE_HEARTS_DIRECTION=deplete ~/.claude/statusline.sh"
+  }
+}
+```
+
 **bears theme**
 
 A bear face expression appears after the percentage and changes with usage:
@@ -190,6 +277,25 @@ A bear face expression appears after the percentage and changes with usage:
 78% ʕ；ᴥ；ʔ — yellow, struggling
 95% ʕ×ᴥ×ʔ  — red, lights out
 ```
+
+### Changing settings
+
+To change your theme or direction after installation, re-run `install.js` with the new options — it overwrites the current configuration automatically:
+
+```bash
+# Change theme
+node bin/install.js --theme sakura
+
+# Change direction
+node bin/install.js --direction deplete
+
+# Change both at once
+node bin/install.js --theme diamonds --direction deplete
+```
+
+Restart Claude Code for the changes to take effect.
+
+You can also edit the `command` field in `~/.claude/settings.json` directly — restart Claude Code afterwards.
 
 ### Manual install
 
@@ -215,7 +321,11 @@ Add to `~/.claude/settings.json`:
 node bin/install.js --uninstall
 ```
 
-Restores your previous statusline if one existed.
+This will:
+1. Remove the `statusLine` entry from `~/.claude/settings.json`
+2. Restore your previous statusline from backup if one existed, or delete the script file otherwise
+
+Restart Claude Code to complete the removal.
 
 ### Privacy
 

@@ -11,11 +11,11 @@ const SETTINGS = path.join(CLAUDE_DIR, "settings.json");
 
 const HOOK_STOP = {
   type: "command",
-  command: `${DEST} "Claude finished"`,
+  command: `${DEST} finished`,
 };
 const HOOK_NOTIFICATION = {
   type: "command",
-  command: `${DEST} "Claude needs your input"`,
+  command: `${DEST} input`,
 };
 
 const args = process.argv.slice(2);

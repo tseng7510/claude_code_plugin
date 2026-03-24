@@ -15,23 +15,31 @@ const VALID_THEMES = [
   "pawprints", "bears", "triangles", "snowflakes", "music", "sakura", "arrows",
 ];
 
+const VALID_DIRECTIONS = ["fill", "deplete"];
+
 const args = process.argv.slice(2);
 const isUninstall = args.includes("--uninstall");
 
-const themeArg = args.find((a) => a.startsWith("--theme"));
-let theme = null;
-if (themeArg) {
-  if (themeArg.includes("=")) {
-    theme = themeArg.split("=")[1];
-  } else {
-    const idx = args.indexOf(themeArg);
-    theme = args[idx + 1] ?? null;
-  }
+function getArgValue(name) {
+  const arg = args.find((a) => a.startsWith(`--${name}`));
+  if (!arg) return null;
+  if (arg.includes("=")) return arg.split("=")[1];
+  const idx = args.indexOf(arg);
+  return args[idx + 1] ?? null;
 }
+
+const theme = getArgValue("theme");
+const direction = getArgValue("direction");
 
 if (theme && !VALID_THEMES.includes(theme)) {
   console.error(`✗ Unknown theme: "${theme}"`);
   console.error(`  Available: ${VALID_THEMES.join(", ")}`);
+  process.exit(1);
+}
+
+if (direction && !VALID_DIRECTIONS.includes(direction)) {
+  console.error(`✗ Unknown direction: "${direction}"`);
+  console.error(`  Available: fill, deplete`);
   process.exit(1);
 }
 
@@ -92,9 +100,10 @@ fs.copyFileSync(src, DEST);
 fs.chmodSync(DEST, 0o755);
 console.log(`✓ Copied statusline script to ${DEST}`);
 
-const command = theme
-  ? `CLAUDE_HEARTS_THEME=${theme} ${DEST}`
-  : DEST;
+const envParts = [];
+if (theme) envParts.push(`CLAUDE_HEARTS_THEME=${theme}`);
+if (direction) envParts.push(`CLAUDE_HEARTS_DIRECTION=${direction}`);
+const command = envParts.length > 0 ? `${envParts.join(" ")} ${DEST}` : DEST;
 
 const settings = readSettings();
 settings.statusLine = { type: "command", command };
@@ -102,7 +111,9 @@ writeSettings(settings);
 console.log(`✓ Updated ${SETTINGS}`);
 
 const selectedTheme = theme ?? "hearts";
-console.log(`\nDone! Restart Claude Code to see your ✦ ${selectedTheme} statusline.`);
-console.log("\nTo change theme: npx claude-hearts --theme <name>");
-console.log(`Available themes: ${VALID_THEMES.join(", ")}`);
-console.log("\nTo uninstall: npx claude-hearts --uninstall");
+const selectedDirection = direction ?? "fill";
+console.log(`\nDone! Restart Claude Code to see your ✦ ${selectedTheme} statusline (${selectedDirection} mode).`);
+console.log("\nOptions:");
+console.log("  --theme <name>       Available: " + VALID_THEMES.join(", "));
+console.log("  --direction <mode>   fill (default) or deplete");
+console.log("\nTo uninstall: node bin/install.js --uninstall");
