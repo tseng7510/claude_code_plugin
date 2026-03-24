@@ -1,0 +1,25 @@
+{
+  "name": "claude-hearts",
+  "version": "1.0.0",
+  "description": "Cute hearts statusline for Claude Code — shows usage limits, context, and cost",
+  "bin": {
+    "claude-hearts": "./bin/install.js"
+  },
+  "scripts": {
+    "postinstall": "node bin/install.js"
+  },
+  "files": [
+    "bin/statusline.sh",
+    "bin/install.js"
+  ],
+  "keywords": [
+    "claude",
+    "claude-code",
+    "statusline",
+    "usage"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  }
+}
