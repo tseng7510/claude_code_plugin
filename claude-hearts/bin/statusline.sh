@@ -166,7 +166,7 @@ console.log(d.model?.display_name ?? 'Claude');
 console.log(d.workspace?.current_dir ?? d.cwd ?? '');
 console.log(d.cost?.total_cost_usd ?? 0);
 console.log(r(d.context_window?.used_percentage ?? 0));
-console.log(d.context_window?.context_window_size ?? 200000);
+console.log(d.context_window?.context_window_size ?? '');
 console.log(r(d.context_window?.current_usage?.input_tokens ?? 0));
 console.log(r(d.context_window?.current_usage?.cache_creation_input_tokens ?? 0));
 console.log(r(d.context_window?.current_usage?.cache_read_input_tokens ?? 0));
@@ -185,12 +185,10 @@ ctx_cr=$(echo "$_input_parsed"   | sed -n '8p')
 [ -z "$cwd" ] || [ "$cwd" = "null" ] && cwd=$(pwd)
 [ -z "$cost" ] && cost=0
 [ -z "$ctx_pct" ] && ctx_pct=0
-[ -z "$ctx_size" ] && ctx_size=200000
-
 cost_fmt=$(awk "BEGIN {printf \"\$%.4f\", $cost}")
 ctx_cur=$(( ctx_in + ctx_cc + ctx_cr ))
 ctx_used=$(format_tokens "$ctx_cur")
-ctx_total=$(format_tokens "$ctx_size")
+[ -n "$ctx_size" ] && ctx_total=$(format_tokens "$ctx_size") || ctx_total="?"
 
 # git branch
 git_info=""

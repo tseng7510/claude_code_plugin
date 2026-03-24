@@ -22,7 +22,7 @@ node bin/install.js
 
 #### [claude-ping](./claude-ping) 🔔
 
-桌面通知套件，當 Claude 完成任務或等待你確認時，自動發送系統通知。支援 macOS、Linux、Windows、WSL。
+桌面通知套件，當 Claude 完成任務或等待你確認時，自動發送系統通知。支援 macOS。
 
 ```bash
 git clone https://github.com/tseng7510/claude_code_plugin.git
@@ -50,7 +50,7 @@ node bin/install.js
 
 #### [claude-ping](./claude-ping) 🔔
 
-Desktop notifications for Claude Code. Get notified when Claude finishes a task or needs your input. Supports macOS, Linux, Windows, and WSL.
+Desktop notifications for Claude Code. Get notified when Claude finishes a task or needs your input. macOS only.
 
 ```bash
 git clone https://github.com/tseng7510/claude_code_plugin.git
